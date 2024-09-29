@@ -14,9 +14,20 @@ function App() {
       }}>
 
       </textarea>
-      <button onClick={() => {
+      <button onClick={async () => {
         console.log('running', code);
-        setCurrentClient(new Client()); 
+        setOutput((_) => '');
+        const client = new Client({
+          onPacket: (message: string) => {
+            setOutput(output => output + message);
+          }, 
+          onExit: () => {
+            setOutput(output => output + "\n\n === EXITED === ");
+          }
+        });
+        await client.awaitConnection();
+        client.execute(code, "python");
+        setCurrentClient(client);
       }}>
         Run
       </button>
