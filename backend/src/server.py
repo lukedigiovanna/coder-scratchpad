@@ -51,6 +51,8 @@ def handle_message(data):
 
         for line in p.stdout:
             emit("output", line)
+        for line in p.stderr:
+            emit("output", line)
 
         p.wait()
     except:
