@@ -84,8 +84,8 @@ def handle_message(data):
         # Now you have the entire traceback as a string
         emit("error", error_message)  # Emit the error string as needed
     finally:
-        if os.path.exists(temp_file):
-            os.remove(temp_file)
+        if os.path.exists(temp_code_file):
+            os.remove(temp_code_file)
     
     emit("exit", "hi")
     disconnect()
