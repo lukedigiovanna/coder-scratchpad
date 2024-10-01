@@ -1,53 +1,63 @@
 import React from 'react';
 import { Client } from './client';
 
-import { Editor, useMonaco } from '@monaco-editor/react';
+import { Editor, Monaco } from '@monaco-editor/react';
 import { editor } from 'monaco-editor';
 
-import BlackboardData from "./themes/Blackboard.json";
-
-const Blackboard = BlackboardData as editor.IStandaloneThemeData;
+import { EditorHeader } from './components/EditorHeader';
+import { newScratch, Scratch } from './constants/models';
+import { CodeOutput } from './components/CodeOutput';
+import { defineThemes, Theme } from './themes';
 
 function App() {
   const [output, setOutput] = React.useState<string>("nothing");
-  const [code, setCode] = React.useState<string>("");
+  const [scratch, setScratch] = React.useState<Scratch>(newScratch("python"));
+  const [running, setRunning] = React.useState<boolean>(false);
 
-  const [currentClient, setCurrentClient] = React.useState<Client | null>(null);
+  const [theme, setTheme] = React.useState<Theme>("SpaceCadet");
 
-  const monaco = useMonaco();
+  const executeCode = async () => {
+    setOutput((_) => '');
+    const client = new Client({
+      onPacket: (message: string) => {
+        setOutput(output => output + message);
+      }, 
+      onExit: () => {
+        setOutput(output => output + "\n === EXITED === ");
+        setRunning(_ => false);
+      }
+    });
+    await client.awaitConnection();
+    setRunning(_ => true);
+    client.execute(scratch.code, scratch.language);
+  }
 
-  React.useEffect(() => {
-    // monaco?.
-  }, [monaco])
+  const handleEditorDidMount = (monaco: Monaco) => {
+    defineThemes(monaco);
+  };
 
   return (
-    <div className="grid grid-cols-2 grid-rows-1">
-      <div className="flex flex-col p-4">
-        <Editor defaultLanguage='python' theme='vs-dark' height="50vh" onChange={(value: string | undefined, ev: editor.IModelContentChangedEvent) => {
-          setCode(value as string);
-        }}/>
-        <button onClick={async () => {
-          console.log('running', code);
-          setOutput((_) => '');
-          const client = new Client({
-            onPacket: (message: string) => {
-              setOutput(output => output + message);
-            }, 
-            onExit: () => {
-              setOutput(output => output + "\n === EXITED === ");
-            }
-          });
-          await client.awaitConnection();
-          client.execute(code, "python");
-          setCurrentClient(client);
-        }} className="border border-black rounded w-fit px-4 m-2 self-end">
-          Run
-        </button>
-      </div>
-      <div className="p-4">
-        <pre>
-          {output}
-        </pre>
+    <div className="m-4 rounded">
+      <EditorHeader scratch={scratch} running={running} executeCode={executeCode} setTheme={(theme: Theme) => {
+        setTheme(_ => theme);
+      }} />
+      <div className="grid grid-cols-2 grid-rows-1 h-[80vh]">
+        <div className="flex flex-col">
+          <Editor 
+            defaultLanguage='python' 
+            theme={theme}
+            height="100%" 
+            value={scratch.code}
+            options={{
+              minimap: { enabled: false }
+            }}
+            beforeMount={handleEditorDidMount}
+            onChange={(value: string | undefined, ev: editor.IModelContentChangedEvent) => {
+              setScratch(scratch => ({...scratch, code: value as string}));
+            }}
+          />
+        </div>
+        <CodeOutput output={output} />
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ def make_temp_file_path(extension=''):
     rand_str = ''
     for _ in range(6):
         rand_str += chr(random.randint(97, 122))
-    return f'tmp_{rand_str}'
+    return f'/tmp/csp_{rand_str}'
 
 @socketio.on('connect')
 def handle_connect():

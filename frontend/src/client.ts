@@ -1,7 +1,8 @@
 import { Socket } from "socket.io-client";
 import io from "socket.io-client"
 
-import { Latch } from "./latch";
+import { Latch } from "./constants/latch";
+import { ProgrammingLanguage } from "./constants/models";
 
 const URL = "http://127.0.0.1:5000"
 
@@ -13,11 +14,8 @@ interface ClientProps {
     onExit: HandleExitCallback;
 }
 
-// Supported programming languages:
-type ProgrammingLanguage = 'python';
-
 class Client {
-    private running: boolean = false;
+    private _running: boolean = false;
     private connected: boolean = false;
     private connectionLatch: Latch;
     private socket: Socket;
@@ -53,15 +51,19 @@ class Client {
         if (!this.connected) {
             throw Error("Client not yet connected");
         }
-        if (this.running) {
+        if (this._running) {
             throw Error("Cannot start code execution while one is already in progress");
         }
         
-        this.running = true;
+        this._running = true;
         this.socket.emit("execute", {
             code,
             language,
         });
+    }
+
+    get running() {
+        return this._running;
     }
 }
 
