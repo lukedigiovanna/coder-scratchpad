@@ -1,10 +1,12 @@
 from flask import Flask, render_template
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, emit, disconnect
 
-import multiprocessing
 import subprocess
 import random
 import os
+import select
+import io
+import traceback
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -13,8 +15,7 @@ def make_temp_file_path(extension=''):
     rand_str = ''
     for _ in range(6):
         rand_str += chr(random.randint(97, 122))
-    ext = f'.{extension}' if len(extension) > 0 else ''
-    return f'./tmp_{rand_str}{ext}'
+    return f'tmp_{rand_str}'
 
 @socketio.on('connect')
 def handle_connect():
@@ -37,31 +38,58 @@ def handle_message(data):
 
     extension = get_extension(language)
     temp_file = make_temp_file_path(extension)
+    temp_code_file = f"{temp_file}.{extension}"
 
     # Write code to temporary file
-    with open(temp_file, "w") as f:
+    with open(temp_code_file, "w") as f:
         f.write(code)
 
     try:
         if language == "python":
-            p = subprocess.Popen(['python', temp_file],
+            p = subprocess.Popen(['python3', '-u', temp_code_file],
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,
+                                 bufsize=1,
                                  text=True)
+        # elif language == "c++":
+        #     c = subprocess.Popen(['g++', '-o', temp_file, temp_code_file])
+        #     c.wait()
+        #     # assume no compile errors :)
 
-        for line in p.stdout:
-            emit("output", line)
-        for line in p.stderr:
-            emit("output", line)
 
-        p.wait()
-    except:
-        emit("error", "Error creating thing")
+        # set streams to non blocking so 
+        os.set_blocking(p.stdout.fileno(), False)
+        os.set_blocking(p.stderr.fileno(), False)
+
+        while p.poll() is None:
+            ready, _, _ = select.select([p.stdout, p.stderr], [], [], 0.1)
+            if p.stdout in ready:
+                output = p.stdout.read()
+                if output:
+                    emit("output", output)
+            if p.stderr in ready:
+                error = p.stderr.read()
+                if error:
+                    emit("output", error)
+        p.stdout.close()
+        p.stderr.close()
+        
+        p.wait()        
+    except Exception as e:
+        # Create a string buffer to capture the traceback
+        buffer = io.StringIO()
+        traceback.print_exc(file=buffer)  # Capture the traceback in the buffer
+        error_message = buffer.getvalue()  # Get the string from the buffer
+
+        # Now you have the entire traceback as a string
+        emit("error", error_message)  # Emit the error string as needed
     finally:
         if os.path.exists(temp_file):
             os.remove(temp_file)
     
-    emit("exited", "")
+    emit("exit", "hi")
+    disconnect()
+    
     
 @socketio.on('disconnect')
 def handle_disconnect():

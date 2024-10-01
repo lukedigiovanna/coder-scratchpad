@@ -38,7 +38,7 @@ class Client {
         this.socket.on('error', (err: any) => {
             console.log(err);
         });
-        this.socket.on('exited', () => {
+        this.socket.on('exit', () => {
             props.onExit();
             this.socket.disconnect();
         });

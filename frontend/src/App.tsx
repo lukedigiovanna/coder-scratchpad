@@ -23,11 +23,6 @@ function App() {
   return (
     <div className="grid grid-cols-2 grid-rows-1">
       <div className="flex flex-col p-4">
-        {/* <textarea cols={80} rows={30} spellCheck={false} onChange={(e) => {
-          setCode(e.target.value);
-        }} className="border border-black rounded p-2 font-mono">
-
-        </textarea> */}
         <Editor defaultLanguage='python' theme='vs-dark' height="50vh" onChange={(value: string | undefined, ev: editor.IModelContentChangedEvent) => {
           setCode(value as string);
         }}/>
