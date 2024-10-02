@@ -7,7 +7,7 @@ import { ProgrammingLanguage } from "./constants/models";
 const URL = "http://127.0.0.1:5000"
 
 type HandlePacketCallback = (message: string) => void;
-type HandleExitCallback = () => void;
+type HandleExitCallback = (status: number) => void;
 
 interface ClientProps {
     onPacket: HandlePacketCallback;
@@ -36,8 +36,8 @@ class Client {
         this.socket.on('error', (err: any) => {
             console.log(err);
         });
-        this.socket.on('exit', () => {
-            props.onExit();
+        this.socket.on('exit', (status: number) => {
+            props.onExit(status);
             this.socket.disconnect();
         });
         this.socket.connect();

@@ -44,6 +44,7 @@ def handle_message(data):
     with open(temp_code_file, "w") as f:
         f.write(code)
 
+    exit_status = 0
     try:
         if language == "python":
             p = subprocess.Popen(['python3', '-u', temp_code_file],
@@ -70,11 +71,12 @@ def handle_message(data):
             if p.stderr in ready:
                 error = p.stderr.read()
                 if error:
-                    emit("output", error)
+                    modified_traceback = error.replace(temp_code_file, "<main.py>")
+                    emit("output", modified_traceback)
         p.stdout.close()
         p.stderr.close()
         
-        p.wait()        
+        exit_status = p.wait()       
     except Exception as e:
         # Create a string buffer to capture the traceback
         buffer = io.StringIO()
@@ -87,7 +89,7 @@ def handle_message(data):
         if os.path.exists(temp_code_file):
             os.remove(temp_code_file)
     
-    emit("exit", "hi")
+    emit("exit", exit_status)
     disconnect()
     
     
