@@ -2,6 +2,8 @@ import React from "react"
 
 interface CodeOutputProps {
     output: string;
+    backgroundColor?: string;
+    foregroundColor?: string;
 }
 
 const CodeOutput: React.FC<CodeOutputProps> = (props: CodeOutputProps) => {
@@ -16,13 +18,16 @@ const CodeOutput: React.FC<CodeOutputProps> = (props: CodeOutputProps) => {
     }, [ref, followScroll, props.output]);
 
     React.useEffect(() => {
-        console.log(followScroll);
-    }, [followScroll]);
+        if (ref.current) {
+            ref.current.style.backgroundColor = props.backgroundColor as string;
+            ref.current.style.color = props.foregroundColor as string;
+        }
+    }, [props.backgroundColor, props.foregroundColor])
 
     return (
         <pre 
             ref={ref} 
-            className="h-full overflow-y-scroll overflow-x whitespace-pre-wrap bg-neutral-950 text-gray-50 font-mono px-2 py-1" 
+            className={`h-full overflow-y-scroll overflow-x whitespace-pre-wrap bg-neutral-950 text-gray-50 font-mono px-2 py-1 text-[16px]`}
             onScroll={(_) => {
                 if (ref.current) {
                     if (ref.current.scrollHeight - ref.current.scrollTop === ref.current.clientHeight) {

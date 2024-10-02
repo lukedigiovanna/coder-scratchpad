@@ -7,12 +7,12 @@
 
 import React from "react";
 import { Scratch } from "../constants/models";
-import { Theme, themes } from "../themes";
+import { ThemeName, themeNames } from "../themes";
 
 interface EditorHeaderProps {
     scratch: Scratch;
     executeCode: () => void;
-    setTheme: (theme: Theme) => void;
+    setTheme: (themeName: ThemeName) => void;
     running?: boolean;
 }
 
@@ -25,12 +25,12 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
 
             <div className="flex flex-row">
                 <select onChange={(e) => {
-                    props.setTheme(e.currentTarget.value as Theme);
+                    props.setTheme(e.currentTarget.value as ThemeName);
                 }}>
                     {
-                        themes.map((theme) => {
-                            return <option>
-                                {theme.name}
+                        themeNames.map((name) => {
+                            return <option value={name}>
+                                {name}
                             </option>
                         })
                     }

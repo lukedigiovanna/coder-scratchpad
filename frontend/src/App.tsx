@@ -7,14 +7,15 @@ import { editor } from 'monaco-editor';
 import { EditorHeader } from './components/EditorHeader';
 import { newScratch, Scratch } from './constants/models';
 import { CodeOutput } from './components/CodeOutput';
-import { defineThemes, Theme } from './themes';
+import { defineThemes, getTheme, ThemeName, themeNames } from './themes';
 
 function App() {
   const [output, setOutput] = React.useState<string>("nothing");
   const [scratch, setScratch] = React.useState<Scratch>(newScratch("python"));
   const [running, setRunning] = React.useState<boolean>(false);
 
-  const [theme, setTheme] = React.useState<Theme>("SpaceCadet");
+  const [themeName, setThemeName] = React.useState<ThemeName>(themeNames[0]);
+  const themeData = React.useMemo(() => getTheme(themeName), [themeName]);
 
   const executeCode = async () => {
     setOutput((_) => '');
@@ -37,27 +38,28 @@ function App() {
   };
 
   return (
-    <div className="m-4 rounded">
-      <EditorHeader scratch={scratch} running={running} executeCode={executeCode} setTheme={(theme: Theme) => {
-        setTheme(_ => theme);
+    <div className="h-[100vh] flex flex-col">
+      <EditorHeader scratch={scratch} running={running} executeCode={executeCode} setTheme={(theme: ThemeName) => {
+        setThemeName(_ => theme);
       }} />
-      <div className="grid grid-cols-2 grid-rows-1 h-[80vh]">
-        <div className="flex flex-col">
+      <div className="grid grid-cols-2 grid-rows-1 flex-grow overflow-auto">
+        <div className="flex flex-col border-r-gray-600 border-r-2">
           <Editor 
             defaultLanguage='python' 
-            theme={theme}
+            theme={themeName}
             height="100%" 
             value={scratch.code}
             options={{
-              minimap: { enabled: false }
+              minimap: { enabled: false },
+              fontSize: 16
             }}
             beforeMount={handleEditorDidMount}
-            onChange={(value: string | undefined, ev: editor.IModelContentChangedEvent) => {
+            onChange={(value: string | undefined, _) => {
               setScratch(scratch => ({...scratch, code: value as string}));
             }}
           />
         </div>
-        <CodeOutput output={output} />
+        <CodeOutput output={output} backgroundColor={themeData.colors["editor.background"]} foregroundColor={themeData.colors["editor.foreground"]} />
       </div>
     </div>
   );
