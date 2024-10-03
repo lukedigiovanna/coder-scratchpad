@@ -3,13 +3,14 @@ import React from 'react';
 import { Editor, Monaco } from '@monaco-editor/react';
 
 import { Client } from './client';
-import { defineThemes, getTheme, ThemeName, themeNames } from './themes';
+import { defineThemes } from './themes';
 
 import { newScratch, Scratch } from './constants/models';
 
 import { EditorHeader } from './components/EditorHeader';
 import { CodeOutput } from './components/CodeOutput';
 import { ScratchDirectory } from './components/ScratchDirectory';
+import { useTheme } from './components/ThemeProvider';
 
 function App() {
   const [output, setOutput] = React.useState<string>("");
@@ -20,10 +21,9 @@ function App() {
   const [isDirectoryOpen, setDirectoryOpen] = React.useState<boolean>(true);
   const [isCursorToSide, setCursorToSide] = React.useState<boolean>(false);
 
-  const [themeName, setThemeName] = React.useState<ThemeName>(themeNames[0]);
-  const themeData = React.useMemo(() => getTheme(themeName), [themeName]);
-
   const isDiff = React.useMemo(() => code !== scratch.code, [code, scratch]);
+
+  const theme = useTheme();
 
   const executeCode = async () => {
     setOutput((_) => '');
@@ -58,14 +58,12 @@ function App() {
         <ScratchDirectory />
       </div>
       <div className="h-[100vh] w-full flex flex-col">
-        <EditorHeader scratch={scratch} running={running} isSaved={!isDiff} executeCode={executeCode} setTheme={(theme: ThemeName) => {
-          setThemeName(_ => theme);
-        }} />
+        <EditorHeader scratch={scratch} running={running} isSaved={!isDiff} executeCode={executeCode} />
         <div className="grid grid-cols-2 grid-rows-1 flex-grow overflow-auto">
           <div className="flex flex-col border-r-gray-600 border-r-2">
             <Editor 
               defaultLanguage='python' 
-              theme={themeName}
+              theme={theme.name}
               height="100%" 
               value={scratch.code}
               options={{
@@ -83,7 +81,7 @@ function App() {
               }}
             />
           </div>
-          <CodeOutput output={output} backgroundColor={themeData.colors["editor.background"]} foregroundColor={themeData.colors["editor.foreground"]} />
+          <CodeOutput output={output} backgroundColor={theme.data.colors["editor.background"]} foregroundColor={theme.data.colors["editor.foreground"]} />
         </div>
       </div>
     </div>

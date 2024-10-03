@@ -8,18 +8,20 @@
 import React from "react";
 import { Scratch } from "../constants/models";
 import { ThemeName, themeNames } from "../themes";
+import { useTheme } from "./ThemeProvider";
 
 interface EditorHeaderProps {
     scratch: Scratch;
     executeCode: () => void;
-    setTheme: (themeName: ThemeName) => void;
     isSaved?: boolean;
     running?: boolean;
 }
 
 const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) => {
+    const theme = useTheme();
+    
     return (
-        <div className="grid grid-cols-2 grid-rows-1 bg-neutral-800 p-3 border-b-neutral-950 border-b-4">
+        <div className="grid grid-cols-2 grid-rows-1 p-3 bg-neutral-800 border-b-neutral-950 border-b-4">
             <div className="flex flex-row w-full">
                 <h1 className="font-bold text-gray-100 text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
                     { props.scratch.title }
@@ -52,7 +54,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
             </div>
             <div className="flex flex-row">
                 <select onChange={(e) => {
-                    props.setTheme(e.currentTarget.value as ThemeName);
+                    theme.setTheme(e.currentTarget.value as ThemeName);
                 }}>
                     {
                         themeNames.map((name) => {
