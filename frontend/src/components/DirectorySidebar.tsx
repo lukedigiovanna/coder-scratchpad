@@ -32,7 +32,12 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
     }, []);
 
     const handleMouseMove = React.useMemo(() => (ev: MouseEvent) => {
-        setWidth(Math.min(ev.clientX, 400));
+        if (ev.clientX < 15) {
+            setWidth(0);
+        }
+        else {
+            setWidth(Math.min(ev.clientX, 400));
+        }
     }, []);
 
     React.useEffect(() => {

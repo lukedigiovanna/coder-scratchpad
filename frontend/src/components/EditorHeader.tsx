@@ -26,48 +26,57 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
              style={{
                 backgroundColor: chroma(theme.data.colors["editor.background"]).brighten(0.4).hex()
              }}>
-            <div className="flex flex-row w-full">
-                <h1 className="font-bold text-gray-100 text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
-                    { props.scratch.title }
-                </h1>
+            <div className="flex flex-row justify-between">
+                <div className="flex flex-row items-center">
+                    <h1 className="font-bold text-gray-100 text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
+                        { props.scratch.title }
+                    </h1>
 
-                {
-                    !props.isSaved &&
-                    <p className="ml-1 mb-[1px] italic text-gray-400 text-sm self-end">
-                        (unsaved)
-                    </p>
-                }
-
-{
-                    !props.running ?
-                    <button 
-                        onClick={() => {
-                            props.executeCode();
-                        }}
-                        className="justify-self-end mx-2 px-2 border-green-200 border-2 rounded bg-green-50 font-bold hover:bg-green-100"
-                    >
-                        Run
-                    </button>
-                    :
-                    <button
-                        className="mx-2 px-2 border-red-200 border-2 rounded bg-red-50 font-bold hover:bg-red-100"
-                    >
-                        Stop
-                    </button>
-                }
-            </div>
-            <div className="flex flex-row">
-                <select onChange={(e) => {
-                    theme.setTheme(e.currentTarget.value as ThemeName);
-                }}>
                     {
-                        themeNames.map((name) => {
-                            return <option value={name} key={name}>
-                                {name}
-                            </option>
-                        })
+                        !props.isSaved &&
+                        <p className="ml-1 mt-1 italic text-gray-400 text-sm">
+                            (unsaved)
+                        </p>
                     }
-                </select>
+                </div>
+
+                <div className="mr-4">
+                    {
+                        !props.running ?
+                        <button 
+                            onClick={() => {
+                                props.executeCode();
+                            }}
+                            className="text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors"
+                        >
+                            Run
+                        </button>
+                        :
+                        <button
+                            className="text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-red-600 hover:bg-red-800 active:bg-red-500 transition-colors"
+                        >
+                            Stop
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div className="flex flex-row items-center justify-end">
+                <div>
+                    <select 
+                        className="rounded bg-transparent font-bold text-gray-100 outline-none"
+                        onChange={(e) => {
+                            theme.setTheme(e.currentTarget.value as ThemeName);
+                        }}>
+                        {
+                            themeNames.map((name) => {
+                                return <option value={name} key={name}>
+                                    {name}
+                                </option>
+                            })
+                        }
+                    </select>
+                </div>
             </div>
         </div>
     )
