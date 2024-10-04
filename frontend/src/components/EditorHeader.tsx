@@ -22,7 +22,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
     const theme = useTheme();
     
     return (
-        <div className="grid grid-cols-2 grid-rows-1 p-3 bg-neutral-800"
+        <div className="grid grid-cols-2 grid-rows-1 pl-3 py-3 bg-neutral-800"
              style={{
                 backgroundColor: chroma(theme.data.colors["editor.background"]).brighten(0.4).hex()
              }}>
@@ -40,7 +40,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
                     }
                 </div>
 
-                <div className="mr-4">
+                <div className="mr-2">
                     {
                         !props.running ?
                         <button 
@@ -64,7 +64,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
             <div className="flex flex-row items-center justify-end">
                 <div>
                     <select 
-                        className="rounded bg-transparent font-bold text-gray-100 outline-none"
+                        className="rounded bg-transparent font-bold text-gray-100 outline-none mr-4"
                         onChange={(e) => {
                             theme.setTheme(e.currentTarget.value as ThemeName);
                         }}>
