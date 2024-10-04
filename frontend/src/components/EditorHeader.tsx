@@ -9,6 +9,7 @@ import React from "react";
 import { Scratch } from "../constants/models";
 import { ThemeName, themeNames } from "../themes";
 import { useTheme } from "./ThemeProvider";
+import chroma from "chroma-js";
 
 interface EditorHeaderProps {
     scratch: Scratch;
@@ -21,7 +22,10 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
     const theme = useTheme();
     
     return (
-        <div className="grid grid-cols-2 grid-rows-1 p-3 bg-neutral-800 border-b-neutral-950 border-b-4">
+        <div className="grid grid-cols-2 grid-rows-1 p-3 bg-neutral-800"
+             style={{
+                backgroundColor: chroma(theme.data.colors["editor.background"]).brighten(0.4).hex()
+             }}>
             <div className="flex flex-row w-full">
                 <h1 className="font-bold text-gray-100 text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
                     { props.scratch.title }
@@ -58,7 +62,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
                 }}>
                     {
                         themeNames.map((name) => {
-                            return <option value={name}>
+                            return <option value={name} key={name}>
                                 {name}
                             </option>
                         })
