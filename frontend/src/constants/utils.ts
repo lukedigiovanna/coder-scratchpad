@@ -18,6 +18,20 @@ function formatDateForTitle(date: Date): string {
     
     return `${formattedDate}, ${formattedTime}`;
 }
+
+function formatDateForDirectory(date: Date): string {
+    const options = {
+        month: 'numeric',    // Numeric month (e.g., "10")
+        day: 'numeric',      // Numeric day (e.g., "5")
+        year: 'numeric',     // Full year (e.g., "2024")
+        hour: 'numeric',     // Numeric hour (e.g., "7")
+        minute: '2-digit',   // Two-digit minute (e.g., "21")
+        hour12: true         // 12-hour time format with AM/PM
+    };
+    
+    const formattedDate = date.toLocaleString('en-US', options as any).replace(', ', ' ');
+    
+    return formattedDate;
+}
   
-  
-export { formatDateForTitle };  
+export { formatDateForTitle, formatDateForDirectory };  

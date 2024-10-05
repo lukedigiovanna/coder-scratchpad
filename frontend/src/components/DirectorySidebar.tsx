@@ -3,10 +3,14 @@ import { useTheme } from "./ThemeProvider";
 import { useUser } from "./UserProvider";
 import chroma from "chroma-js";
 import { Scratch } from "../constants/models";
+import { formatDateForDirectory } from "../constants/utils";
 
 interface ScratchDirectoryProps {
     setScratch: (scratch: Scratch) => void;
 }
+
+type SortMode = 'language' | 'title' | 'date';
+type SortDirection = 'ascending' | 'descending';
 
 const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirectoryProps) => {
     const theme = useTheme();
@@ -22,6 +26,35 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
 
     const [dragging, setDragging] = React.useState<boolean>(false);
 
+    const [sortMode, setSortMode] = React.useState<SortMode>('date');
+    const [sortDirection, setSortDirection] = React.useState<SortDirection>('descending');
+
+    const scratches = React.useMemo(() => {
+        if (user.data) {
+            // Sort scratches according to sort mode/sort direction
+            const dir = sortDirection === 'descending' ? -1 : 1;
+            const sorted = user.data.scratches.toSorted((a: Scratch, b: Scratch) => {
+                let c = 0;
+                switch (sortMode) {
+                    case 'date':
+                        c = a.updatedAt.getTime() - b.updatedAt.getTime();
+                        break;
+                    case 'language':
+                        c = a.title.localeCompare(b.title);
+                        break;
+                    case 'title':
+                        c = a.title.localeCompare(b.title);
+                        break;
+                }
+                return c * dir;
+            })
+            return sorted;
+        }
+        else {
+            return [];
+        }
+    }, [sortMode, sortDirection, user.data]);
+
     const handleMouseUp = React.useMemo(() => () => {
         setDragging(false);
     }, []);
@@ -31,7 +64,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
             setWidth(0);
         }
         else {
-            setWidth(Math.min(ev.clientX, 400));
+            setWidth(Math.min(ev.clientX, 900));
         }
     }, []);
 
@@ -47,6 +80,32 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
             document.body.style.userSelect = "auto";
         }
     }, [dragging, handleMouseMove, handleMouseUp]);
+
+    const handleSortChange = (targetMode: SortMode) => {
+        return () => {
+            if (sortMode !== targetMode) {
+                setSortMode(_ => targetMode);
+                setSortDirection(_ => "descending");
+            }
+            else {
+                setSortDirection(old => old === "ascending" ? "descending" : "ascending");
+            }
+        }
+    }
+
+    const getSortIndicator = (mode: SortMode) => {
+        if (sortMode === mode) {
+            if (sortDirection === "ascending") {
+                return "↑";
+            }
+            else {
+                return "↓";
+            }
+        }
+        else {
+            return "";
+        }
+    }
 
     return (
         <div className={`h-[100vh] flex flex-row box-border`} style={{
@@ -71,14 +130,37 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                 }
                 {
                     user.data && 
-                    user.data.scratches.map((scratch, i) => 
-                        <p key={i} className="cursor-pointer text-white overflow-hidden text-nowrap whitespace-nowrap"
-                            onClick={() => {
-                                props.setScratch(scratch);
-                            }}>
-                            {scratch.title}
-                        </p>
-                    )
+                    <table>
+                        <tr>
+                            <th className="cursor-pointer mx-2" onClick={handleSortChange("language")}>
+                                Lang. {getSortIndicator("language")}
+                            </th>
+                            <th className="cursor-pointer mx-2" onClick={handleSortChange("title")}>
+                                Title {getSortIndicator("title")}
+                            </th>
+                            <th className="cursor-pointer mx-2" onClick={handleSortChange("date")}>
+                                Date {getSortIndicator("date")}
+                            </th>
+                        </tr>
+                        {
+                            scratches.map((scratch, i) => 
+                                <tr key={i} className="cursor-pointer text-white overflow-hidden text-nowrap whitespace-nowrap"
+                                    onClick={() => {
+                                        props.setScratch(scratch);
+                                    }}>
+                                    <td>
+                                        {scratch.language}
+                                    </td>
+                                    <td>
+                                        {scratch.title}
+                                    </td>
+                                    <td>
+                                        {formatDateForDirectory(scratch.updatedAt)}
+                                    </td>
+                                </tr>
+                            )
+                        }
+                    </table>
                 }
             </div>
 
