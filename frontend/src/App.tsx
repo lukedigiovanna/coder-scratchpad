@@ -12,6 +12,8 @@ import { CodeOutput } from './components/CodeOutput';
 import { DirectorySidebar } from './components/DirectorySidebar';
 import { useTheme } from './components/ThemeProvider';
 
+import { supabase } from './constants/supabaseClient';
+
 function App() {
   const [output, setOutput] = React.useState<string>("");
   const [scratch, setScratch] = React.useState<Scratch>(newScratch("python"));
@@ -41,6 +43,13 @@ function App() {
   const handleEditorDidMount = (monaco: Monaco) => {
     defineThemes(monaco);
   };
+
+  React.useEffect(() => {
+    (async () => {
+      const results = await supabase.from('scratches').select('*');
+      console.log(results);
+    })();
+  }, []);
 
   return (
     <div className="flex flex-row">
