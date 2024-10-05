@@ -55,7 +55,7 @@ function App() {
         <div className="grid grid-cols-2 grid-rows-1 flex-grow overflow-auto">
           <div className="flex flex-col">
             <Editor 
-              defaultLanguage='python' 
+              language={scratch.language}
               theme={theme.name}
               height="100%" 
               value={scratch.code}

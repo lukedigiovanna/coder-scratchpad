@@ -4,6 +4,7 @@ import { useUser } from "./UserProvider";
 import chroma from "chroma-js";
 import { Scratch } from "../constants/models";
 import { formatDateForDirectory } from "../constants/utils";
+import { LanguageLogo } from "./LanguageLogo";
 
 interface ScratchDirectoryProps {
     setScratch: (scratch: Scratch) => void;
@@ -149,7 +150,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                                         props.setScratch(scratch);
                                     }}>
                                     <td>
-                                        {scratch.language}
+                                        <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
                                     </td>
                                     <td>
                                         {scratch.title}

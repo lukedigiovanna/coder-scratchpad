@@ -10,6 +10,7 @@ import { Scratch } from "../constants/models";
 import { ThemeName, themeNames } from "../themes";
 import { useTheme } from "./ThemeProvider";
 import chroma from "chroma-js";
+import { LanguageLogo } from "./LanguageLogo";
 
 interface EditorHeaderProps {
     scratch: Scratch;
@@ -27,7 +28,8 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
                 backgroundColor: chroma(theme.data.colors["editor.background"]).brighten(0.4).hex()
              }}>
             <div className="flex flex-row justify-between">
-                <div className="flex flex-row items-center">
+                <div className="flex flex-row items-center justify-center">
+                    <LanguageLogo language={props.scratch.language} className="w-6 mr-2" />
                     <h1 className="font-bold text-gray-100 text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
                         { props.scratch.title }
                     </h1>
