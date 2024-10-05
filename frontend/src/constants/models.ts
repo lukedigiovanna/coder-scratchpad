@@ -2,8 +2,7 @@
 
 import { formatDateForTitle } from "./utils";
 
-type ProgrammingLanguage = 'python';
-
+type ProgrammingLanguage = 'python' | 'cpp' | 'c' | 'javascript';
 
 interface Scratch {
     title: string;
