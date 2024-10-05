@@ -4,18 +4,18 @@ import { formatDateForTitle } from "./utils";
 
 type ProgrammingLanguage = 'python';
 
-interface User {
-    uuid: string;
-    email: string;
-}
 
 interface Scratch {
+    title: string;
     code: string;
     language: ProgrammingLanguage;
-    user: User | null;
-    createdDate: Date;
-    lastSaved: Date;
-    title: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface User {
+    email: string;
+    scratches: Scratch[];
 }
 
 // Creates a new, blank scratch with the given default programming language.
@@ -24,13 +24,12 @@ function newScratch(language: ProgrammingLanguage): Scratch {
     return {
         code: "",
         language: language,
-        createdDate: now,
-        lastSaved: now,
+        createdAt: now,
+        updatedAt: now,
         title: formatDateForTitle(now),
-        user: null
     };
 }
 
-export type { ProgrammingLanguage, Scratch };
+export type { ProgrammingLanguage, Scratch, User };
 
 export { newScratch };

@@ -1,25 +1,20 @@
 import React from "react"
 import { useTheme } from "./ThemeProvider";
+import { useUser } from "./UserProvider";
 import chroma from "chroma-js";
+import { Scratch } from "../constants/models";
 
 interface ScratchDirectoryProps {
-
+    setScratch: (scratch: Scratch) => void;
 }
-
-const testData = [
-    "API",
-    "Latch",
-    "BirdsOfParadise",
-    "Square algorithm",
-    "RSA implementation",
-    "dates in TS",
-    "python variables",
-    "C++ class ownership",
-    "idk?"
-]
 
 const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirectoryProps) => {
     const theme = useTheme();
+    const user = useUser();
+
+    React.useEffect(() => {
+        console.log(user.data);
+    }, [user.data]);
 
     const [width, setWidth] = React.useState<number>(250);
     const backgroundColor = React.useMemo(() => chroma(theme.data.colors["editor.background"]).darken(0.4).hex(), [theme]);
@@ -63,9 +58,25 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
             {/* Directory Content */}
             <div className="w-full overflow-hidden">
                 {
-                    testData.map(title => 
-                        <p key={title} className="cursor-pointer text-white overflow-hidden text-nowrap whitespace-nowrap">
-                            {title}
+                    user.data ?
+                    <p>
+                        {user.data.email}
+                    </p>
+                    :
+                    <button onClick={() => {
+                       user.signIn("example@email.com", "password"); 
+                    }}>
+                        Sign In
+                    </button>
+                }
+                {
+                    user.data && 
+                    user.data.scratches.map((scratch, i) => 
+                        <p key={i} className="cursor-pointer text-white overflow-hidden text-nowrap whitespace-nowrap"
+                            onClick={() => {
+                                props.setScratch(scratch);
+                            }}>
+                            {scratch.title}
                         </p>
                     )
                 }

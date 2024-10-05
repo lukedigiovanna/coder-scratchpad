@@ -44,16 +44,12 @@ function App() {
     defineThemes(monaco);
   };
 
-  React.useEffect(() => {
-    (async () => {
-      const results = await supabase.from('scratches').select('*');
-      console.log(results);
-    })();
-  }, []);
-
   return (
     <div className="flex flex-row">
-      <DirectorySidebar />
+      <DirectorySidebar setScratch={(scratch: Scratch) => {
+        setScratch(_ => scratch);
+        setCode(_ => scratch.code);
+      }} />
       <div className="h-[100vh] w-full flex flex-col">
         <EditorHeader scratch={scratch} running={running} isSaved={!isDiff} executeCode={executeCode} />
         <div className="grid grid-cols-2 grid-rows-1 flex-grow overflow-auto">
