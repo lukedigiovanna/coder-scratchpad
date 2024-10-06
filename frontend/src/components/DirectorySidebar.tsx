@@ -5,6 +5,7 @@ import chroma from "chroma-js";
 import { Scratch } from "../constants/models";
 import { formatDateForDirectory } from "../constants/utils";
 import { LanguageLogo } from "./LanguageLogo";
+import { useModal } from "./ModalProvider";
 
 interface ScratchDirectoryProps {
     setScratch: (scratch: Scratch) => void;
@@ -29,6 +30,8 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
 
     const [sortMode, setSortMode] = React.useState<SortMode>('date');
     const [sortDirection, setSortDirection] = React.useState<SortDirection>('descending');
+
+    const modal = useModal();
 
     const scratches = React.useMemo(() => {
         if (user.data) {
@@ -124,8 +127,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                     </p>
                     :
                     <button onClick={() => {
-                    //    user.signIn("example@email.com", "password"); 
-                        user.signIn("lukedigiovanna@gmail.com", "admin");
+                        modal.signIn.show();
                     }}>
                         Sign In
                     </button>

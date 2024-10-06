@@ -21,7 +21,7 @@ function App() {
   const [running, setRunning] = React.useState<boolean>(false);
 
   const isDiff = React.useMemo(() => code !== scratch.code, [code, scratch]);
-
+  
   const theme = useTheme();
 
   const executeCode = async () => {
@@ -46,9 +46,6 @@ function App() {
 
   return (
     <>
-      <Modal visible={false} className="bg-red">
-
-      </Modal>
       <div className="flex flex-row">
         <DirectorySidebar setScratch={(scratch: Scratch) => {
           setScratch(_ => scratch);

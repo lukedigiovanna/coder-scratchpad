@@ -4,6 +4,7 @@ import App from './App';
 import './index.css';
 import { ThemeProvider } from './components/ThemeProvider';
 import { UserProvider } from './components/UserProvider';
+import { ModalProvider } from './components/ModalProvider';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +12,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <UserProvider>
     <ThemeProvider>
-      <App />
+      <ModalProvider>
+        <App />
+      </ModalProvider>
     </ThemeProvider>
   </UserProvider>
 );

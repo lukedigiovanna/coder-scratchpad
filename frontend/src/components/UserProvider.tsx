@@ -8,10 +8,7 @@ interface UserContextProps {
     signIn: (email: string, password: string) => void;
 };
 
-const UserContext = React.createContext<UserContextProps>({
-    data: null,
-    signIn: async () => {}
-});
+const UserContext = React.createContext<UserContextProps | undefined>(undefined);
 
 const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [user, setUser] = React.useState<User | null>(null);

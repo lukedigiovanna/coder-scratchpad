@@ -9,11 +9,7 @@ interface ThemeContextProps {
     setTheme: (name: ThemeName) => void;
 };
 
-const ThemeContext = React.createContext<ThemeContextProps>({
-    name: "GithubDark",
-    data: getTheme("GithubDark"),
-    setTheme: (_) => {},
-});
+const ThemeContext = React.createContext<ThemeContextProps | undefined>(undefined);
 
 const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [themeName, setTheme] = React.useState<ThemeName>("GithubDark"); 
