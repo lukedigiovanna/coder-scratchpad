@@ -124,7 +124,8 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                     </p>
                     :
                     <button onClick={() => {
-                       user.signIn("example@email.com", "password"); 
+                    //    user.signIn("example@email.com", "password"); 
+                        user.signIn("lukedigiovanna@gmail.com", "admin");
                     }}>
                         Sign In
                     </button>

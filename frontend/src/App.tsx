@@ -12,7 +12,7 @@ import { CodeOutput } from './components/CodeOutput';
 import { DirectorySidebar } from './components/DirectorySidebar';
 import { useTheme } from './components/ThemeProvider';
 
-import { supabase } from './constants/supabaseClient';
+import { Modal } from './components/Modal';
 
 function App() {
   const [output, setOutput] = React.useState<string>("");
@@ -45,39 +45,44 @@ function App() {
   };
 
   return (
-    <div className="flex flex-row">
-      <DirectorySidebar setScratch={(scratch: Scratch) => {
-        setScratch(_ => scratch);
-        setCode(_ => scratch.code);
-      }} />
-      <div className="h-[100vh] w-full flex flex-col">
-        <EditorHeader scratch={scratch} running={running} isSaved={!isDiff} executeCode={executeCode} />
-        <div className="grid grid-cols-2 grid-rows-1 flex-grow overflow-auto">
-          <div className="flex flex-col">
-            <Editor 
-              language={scratch.language}
-              theme={theme.name}
-              height="100%" 
-              value={scratch.code}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 16
-              }}
-              beforeMount={handleEditorDidMount}
-              onChange={(value: string | undefined, _) => {
-                if (value) {
-                  setCode(value);
-                }
-                else {
-                  setCode("");
-                }
-              }}
-            />
+    <>
+      <Modal visible={false} className="bg-red">
+
+      </Modal>
+      <div className="flex flex-row">
+        <DirectorySidebar setScratch={(scratch: Scratch) => {
+          setScratch(_ => scratch);
+          setCode(_ => scratch.code);
+        }} />
+        <div className="h-[100vh] w-full flex flex-col">
+          <EditorHeader scratch={scratch} running={running} isSaved={!isDiff} executeCode={executeCode} />
+          <div className="grid grid-cols-2 grid-rows-1 flex-grow overflow-auto">
+            <div className="flex flex-col">
+              <Editor 
+                language={scratch.language}
+                theme={theme.name}
+                height="100%" 
+                value={scratch.code}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 16
+                }}
+                beforeMount={handleEditorDidMount}
+                onChange={(value: string | undefined, _) => {
+                  if (value) {
+                    setCode(value);
+                  }
+                  else {
+                    setCode("");
+                  }
+                }}
+              />
+            </div>
+            <CodeOutput output={output} />
           </div>
-          <CodeOutput output={output} />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
