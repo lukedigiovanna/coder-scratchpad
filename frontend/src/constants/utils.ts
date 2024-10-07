@@ -33,5 +33,15 @@ function formatDateForDirectory(date: Date): string {
     
     return formattedDate;
 }
+
+function debounce<T extends Function>(cb: T, wait: number) {
+    let h = 0;
+    let callable = (...args: any) => {
+        clearTimeout(h);
+        h = setTimeout(() => cb(...args), wait);
+    };
+    return callable as any as T;
+}
   
-export { formatDateForTitle, formatDateForDirectory };  
+
+export { formatDateForTitle, formatDateForDirectory, debounce };  

@@ -11,6 +11,8 @@ import { ThemeName, themeNames } from "../themes";
 import { useTheme } from "./ThemeProvider";
 import chroma from "chroma-js";
 import { LanguageLogo } from "./LanguageLogo";
+import { updateScratch } from "../constants/supabaseClient";
+import { useUser } from "./UserProvider";
 
 interface EditorHeaderProps {
     scratch: Scratch;
@@ -21,7 +23,14 @@ interface EditorHeaderProps {
 
 const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) => {
     const theme = useTheme();
+    const user = useUser();
     
+    const [scratchTitle, setScratchTitle] = React.useState<string>("");
+
+    React.useEffect(() => {
+        setScratchTitle(props.scratch.title);
+    }, [props.scratch]);
+
     return (
         <div className="grid grid-cols-2 grid-rows-1 pl-3 py-3 bg-neutral-800"
              style={{
@@ -29,18 +38,38 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
                 color: theme.data.colors["editor.foreground"]
              }}>
             <div className="flex flex-row justify-between">
-                <div className="flex flex-row items-center justify-center">
+                <div className="flex flex-row items-center w-full">
                     <LanguageLogo language={props.scratch.language} className="w-6 mr-2" />
-                    <h1 className="font-bold text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
-                        { props.scratch.title }
-                    </h1>
-
-                    {
-                        !props.isSaved &&
-                        <p className="ml-1 mt-1 italic text-gray-400 text-sm">
-                            (unsaved)
-                        </p>
-                    }
+                    <input className={`${props.isSaved ? "" : "text-red-300"} font-mono font-bold text-xl overflow-hidden whitespace-nowrap overflow-ellipsis bg-transparent w-full outline-none`} 
+                           value={scratchTitle}
+                           style={{
+                            width: (scratchTitle.length) + "ch"
+                           }}
+                           spellCheck={false}
+                           onChange={e => {
+                            setScratchTitle(e.target.value);
+                           }} 
+                           onBlur={() => {
+                            if (scratchTitle.length === 0) {
+                                setScratchTitle(props.scratch.title);
+                            }
+                            else if (scratchTitle !== props.scratch.title) {
+                                props.scratch.title = scratchTitle;
+                                updateScratch(props.scratch).then(scratch => {
+                                    user.updateScratch(scratch);
+                                }).catch((e) => {
+                                    console.log(e);
+                                });
+                            }
+                           }}
+                           />
+                        
+                        {
+                            !props.isSaved &&
+                            <p className="ml-1 text-red-300">
+                                *
+                            </p>
+                        }
                 </div>
 
                 <div className="mr-2">

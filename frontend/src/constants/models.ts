@@ -5,6 +5,7 @@ import { formatDateForTitle } from "./utils";
 type ProgrammingLanguage = 'python' | 'cpp' | 'c' | 'javascript';
 
 interface Scratch {
+    id: number | null; // id null when this scratch hasn't been saved to DB yet
     title: string;
     code: string;
     language: ProgrammingLanguage;
@@ -21,6 +22,7 @@ interface User {
 function newScratch(language: ProgrammingLanguage): Scratch {
     const now = new Date();
     return {
+        id: null,
         code: "",
         language: language,
         createdAt: now,

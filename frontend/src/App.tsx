@@ -12,6 +12,8 @@ import { CodeOutput } from './components/CodeOutput';
 import { DirectorySidebar } from './components/DirectorySidebar';
 import { useTheme } from './components/ThemeProvider';
 import { useUser } from './components/UserProvider';
+import { debounce } from './constants/utils';
+import { updateScratch } from './constants/supabaseClient';
 
 function App() {
   const [output, setOutput] = React.useState<string>("");
@@ -25,10 +27,26 @@ function App() {
   const user = useUser();
 
   React.useEffect(() => {
-    const n = newScratch("python");
-    setScratch(n);
-    setCode(n.code);
-  }, [user])
+    if (user === null) {
+      const n = newScratch("python");
+      setScratch(n);
+      setCode(n.code);
+    }
+  }, [user]);
+
+  React.useEffect(() => {
+    console.log("updated code man");
+  }, [code]);
+
+  const updateCodeDebounce = React.useMemo(() => debounce((scratch: Scratch, code: string) => {
+    scratch.code = code;
+    updateScratch(scratch, true).then(sc => {
+      setScratch(sc);
+      user.updateScratch(sc);
+    }).catch(e => {
+      console.error(e);
+    });
+  }, 3000), [user]);
 
   const executeCode = async () => {
     setOutput((_) => '');
@@ -65,19 +83,16 @@ function App() {
                 language={scratch.language}
                 theme={theme.name}
                 height="100%" 
-                value={scratch.code}
+                value={code}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 16
                 }}
                 beforeMount={handleEditorDidMount}
                 onChange={(value: string | undefined, _) => {
-                  if (value) {
-                    setCode(value);
-                  }
-                  else {
-                    setCode("");
-                  }
+                  const newCode = value ? value : "";
+                  setCode(newCode);
+                  updateCodeDebounce(scratch, newCode);
                 }}
               />
             </div>

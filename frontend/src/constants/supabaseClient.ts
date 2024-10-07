@@ -17,19 +17,23 @@ console.log(supabaseUrl, supabaseAnonKey);
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+function rawDataToScratch(data: any): Scratch {
+    return {
+        id: data.id,
+        title: data.title,
+        code: data.code,
+        language: data.language as ProgrammingLanguage,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+    };
+}
+
 async function getScratches(): Promise<Scratch[]> {
     const scratchesRequest = await supabase.from("scratches").select("*");
     const scratches: Scratch[] = [];
     if (scratchesRequest.data) {
         for (const scratchRawData of scratchesRequest.data) {
-            const scratch: Scratch = {
-                title: scratchRawData.title,
-                code: scratchRawData.code,
-                language: scratchRawData.language as ProgrammingLanguage,
-                createdAt: new Date(scratchRawData.created_at),
-                updatedAt: new Date(scratchRawData.updated_at),
-            };
-            scratches.push(scratch);
+            scratches.push(rawDataToScratch(scratchRawData));
         }
     }
     return scratches;
@@ -91,4 +95,37 @@ async function attemptToRestoreSession(): Promise<User | null> {
     return null;
 }
 
-export { supabase, signInWithPassword, attemptToRestoreSession };
+async function insertScratch(scratch: Scratch): Promise<Scratch> {
+    if (scratch.id !== null) {
+        throw Error("ID of scratch should be null")
+    }
+
+    return scratch;
+}
+
+// Attempts to overwrite the data of this scratch
+// Returns the copy of the updated scratch on success. Otherwise throws an
+// error.
+async function updateScratch(scratch: Scratch, updateTime=false): Promise<Scratch> {
+    if (scratch.id === null) {
+        throw Error("Cannot update scratch that has no ID");
+    }
+
+    const now = updateTime ? new Date() : scratch.updatedAt;
+    const update = await supabase.from("scratches").update({
+        title: scratch.title,
+        code: scratch.code,
+        updated_at: now,
+        language: scratch.language,    
+    }).eq("id", scratch.id).select();
+
+    if (!update.data || update.data.length === 0) {
+        throw Error("Did not update anything");
+    }
+
+    return rawDataToScratch(update.data[0]);
+}
+
+
+
+export { supabase, signInWithPassword, attemptToRestoreSession, updateScratch };

@@ -18,11 +18,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
     const theme = useTheme();
     const user = useUser();
 
-    React.useEffect(() => {
-        console.log(user.data);
-    }, [user.data]);
-
-    const [width, setWidth] = React.useState<number>(250);
+    const [width, setWidth] = React.useState<number>(420);
     const backgroundColor = React.useMemo(() => chroma(theme.data.colors["editor.background"]).darken(0.4).hex(), [theme]);
     const foregroundColor = React.useMemo(() => theme.data.colors["editor.foreground"], [theme]);
 
@@ -100,10 +96,10 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
     const getSortIndicator = (mode: SortMode) => {
         if (sortMode === mode) {
             if (sortDirection === "ascending") {
-                return "↑";
+                return "↓";
             }
             else {
-                return "↓";
+                return "↑";
             }
         }
         else {
@@ -151,35 +147,39 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                 {
                     user.data ? 
                     <table>
-                        <tr>
-                            <th className="cursor-pointer mx-2 min-w-16" onClick={handleSortChange("language")}>
-                                Lang. {getSortIndicator("language")}
-                            </th>
-                            <th className="cursor-pointer mx-2 max-w-48" onClick={handleSortChange("title")}>
-                                Title {getSortIndicator("title")}
-                            </th>
-                            <th className="cursor-pointer mx-2" onClick={handleSortChange("date")}>
-                                Date {getSortIndicator("date")}
-                            </th>
-                        </tr>
-                        {
-                            scratches.map((scratch, i) => 
-                                <tr key={i} className="cursor-pointer overflow-hidden text-nowrap whitespace-nowrap"
-                                    onClick={() => {
-                                        props.setScratch(scratch);
-                                    }}>
-                                    <td className="min-w-16">
-                                        <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
-                                    </td>
-                                    <td className="max-w-48 overflow-ellipsis overflow-hidden">
-                                        {scratch.title}
-                                    </td>
-                                    <td>
-                                        {formatDateForDirectory(scratch.updatedAt)}
-                                    </td>
-                                </tr>
-                            )
-                        }
+                        <thead>
+                            <tr className="select-none">
+                                <th className="cursor-pointer mx-2 min-w-16" onClick={handleSortChange("language")}>
+                                    Lang. {getSortIndicator("language")}
+                                </th>
+                                <th className="cursor-pointer mx-2 max-w-48" onClick={handleSortChange("title")}>
+                                    Title {getSortIndicator("title")}
+                                </th>
+                                <th className="cursor-pointer mx-2 min-w-44" onClick={handleSortChange("date")}>
+                                    Date {getSortIndicator("date")}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                scratches.map((scratch, i) => 
+                                    <tr key={i} className="cursor-pointer overflow-hidden text-nowrap whitespace-nowrap hover:font-bold"
+                                        onClick={() => {
+                                            props.setScratch(scratch);
+                                        }}>
+                                        <td className="min-w-16">
+                                            <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
+                                        </td>
+                                        <td className="max-w-48 overflow-ellipsis overflow-hidden">
+                                            {scratch.title}
+                                        </td>
+                                        <td className="min-w-44">
+                                            {formatDateForDirectory(scratch.updatedAt)}
+                                        </td>
+                                    </tr>
+                                )
+                            }
+                        </tbody>
                     </table>
                     :
                     <p className="text-center mx-2 mt-4">
