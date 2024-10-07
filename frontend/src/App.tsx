@@ -11,8 +11,7 @@ import { EditorHeader } from './components/EditorHeader';
 import { CodeOutput } from './components/CodeOutput';
 import { DirectorySidebar } from './components/DirectorySidebar';
 import { useTheme } from './components/ThemeProvider';
-
-import { Modal } from './components/Modal';
+import { useUser } from './components/UserProvider';
 
 function App() {
   const [output, setOutput] = React.useState<string>("");
@@ -21,8 +20,15 @@ function App() {
   const [running, setRunning] = React.useState<boolean>(false);
 
   const isDiff = React.useMemo(() => code !== scratch.code, [code, scratch]);
-  
+
   const theme = useTheme();
+  const user = useUser();
+
+  React.useEffect(() => {
+    const n = newScratch("python");
+    setScratch(n);
+    setCode(n.code);
+  }, [user])
 
   const executeCode = async () => {
     setOutput((_) => '');

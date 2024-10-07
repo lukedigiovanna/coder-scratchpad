@@ -68,7 +68,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
             setWidth(0);
         }
         else {
-            setWidth(Math.min(ev.clientX, 900));
+            setWidth(Math.min(ev.clientX, 420));
         }
     }, []);
 
@@ -123,9 +123,20 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                 <div className="p-3 flex flex-row justify-center items-center">
                     {
                         user.data ?
-                        <p>
-                            {user.data.email}
-                        </p>
+                        <div className="flex flex-col items-center justify-center">
+                            <p>
+                                Signed in as
+                            </p>
+                            <p className="italic text-sm">
+                                {user.data.email}
+                            </p>
+                            <button className="text-xs hover:text-red-500 active:text-red-700 transition"
+                                    onClick={() => {
+                                        user.signOut();
+                                    }}>
+                                (Sign out)
+                            </button>
+                        </div>
                         :
                         <button className="text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors" onClick={() => {
                             modal.signIn.show();
@@ -134,15 +145,17 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                         </button>
                     }
                 </div>
+
+                <hr className="mx-3 mb-3"/>
                 
                 {
                     user.data ? 
                     <table>
                         <tr>
-                            <th className="cursor-pointer mx-2" onClick={handleSortChange("language")}>
+                            <th className="cursor-pointer mx-2 min-w-16" onClick={handleSortChange("language")}>
                                 Lang. {getSortIndicator("language")}
                             </th>
-                            <th className="cursor-pointer mx-2" onClick={handleSortChange("title")}>
+                            <th className="cursor-pointer mx-2 max-w-48" onClick={handleSortChange("title")}>
                                 Title {getSortIndicator("title")}
                             </th>
                             <th className="cursor-pointer mx-2" onClick={handleSortChange("date")}>
@@ -151,14 +164,14 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                         </tr>
                         {
                             scratches.map((scratch, i) => 
-                                <tr key={i} className="cursor-pointer text-white overflow-hidden text-nowrap whitespace-nowrap"
+                                <tr key={i} className="cursor-pointer overflow-hidden text-nowrap whitespace-nowrap"
                                     onClick={() => {
                                         props.setScratch(scratch);
                                     }}>
-                                    <td>
+                                    <td className="min-w-16">
                                         <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
                                     </td>
-                                    <td>
+                                    <td className="max-w-48 overflow-ellipsis overflow-hidden">
                                         {scratch.title}
                                     </td>
                                     <td>

@@ -1,11 +1,12 @@
 import React from "react";
 
 import { User } from "../constants/models";
-import { attemptToRestoreSession, signInWithPassword } from "../constants/supabaseClient";
+import { attemptToRestoreSession, signInWithPassword, supabase } from "../constants/supabaseClient";
 
 interface UserContextProps {
     data: User | null;
     signIn: (email: string, password: string) => Promise<void>;
+    signOut: () => void;
 };
 
 const UserContext = React.createContext<UserContextProps | undefined>(undefined);
@@ -16,6 +17,11 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const signIn = async (email: string, password: string) => {
         const response = await signInWithPassword(email, password);
         setUser(_ => response);
+    }
+
+    const signOut = () => {
+        supabase.auth.signOut();
+        setUser(null);
     }
 
     React.useEffect(() => {
@@ -33,7 +39,7 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{data: user, signIn}}>
+        <UserContext.Provider value={{data: user, signIn, signOut}}>
             { children }
         </UserContext.Provider>
     )

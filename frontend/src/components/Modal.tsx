@@ -48,6 +48,17 @@ const SignInModal: React.FC<ModalProps> = ({ visible, onClose }) => {
 
     const user = useUser();
 
+    const attemptSignIn = () => {
+        setLoading(true);
+        user.signIn(email, password).then(() => {
+            modal.signIn.hide();
+        }).catch(e => {
+            setError(e.message);
+        }).finally(() => {
+            setLoading(false);
+        });
+    }
+
     return (
         <Modal visible={visible} onClose={onClose} className="bg-white max-w-sm h-[40%] p-5">
             <h1 className="text-center text-3xl font-bold">
@@ -56,27 +67,25 @@ const SignInModal: React.FC<ModalProps> = ({ visible, onClose }) => {
 
             <form className="flex flex-col space-y-8 mt-12 mx-12">
                 <input className="border-b-[3px] outline-none border-b-neutral-600 px-2 pb-1 focus:border-b-blue-500" 
+                       type="email"
                        placeholder="email"
                        value={email}
                        onChange={(e) => setEmail(_ => e.target.value)} />
                 <input className="border-b-[3px] outline-none border-b-neutral-600 px-2 pb-1 focus:border-b-blue-500" 
+                       type="password"
                        placeholder="password"
                        value={password}
-                       onChange={(e) => setPassword(_ => e.target.value)} />
+                       onChange={(e) => setPassword(_ => e.target.value)}
+                       onKeyUp={(e) => {
+                        if (e.key === 'Enter' && email.length > 0 && password.length > 0) {
+                            attemptSignIn();
+                        }
+                       }} />
             </form>
 
             <button className="block mx-auto mt-12 text-sm font-bold text-gray-100 rounded-sm px-4 py-2 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors disabled:bg-blue-600 disabled:opacity-50"
                     disabled={loading || email.length === 0 || password.length === 0}
-                    onClick={() => {
-                        setLoading(true);
-                        user.signIn(email, password).then(() => {
-                            modal.signIn.hide();
-                        }).catch(e => {
-                            setError(e.message);
-                        }).finally(() => {
-                            setLoading(false);
-                        });
-                    }}>
+                    onClick={attemptSignIn}>
                 Sign In
             </button>
 
