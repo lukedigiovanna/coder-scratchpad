@@ -9,6 +9,7 @@ import { useModal } from "./ModalProvider";
 
 interface ScratchDirectoryProps {
     setScratch: (scratch: Scratch) => void;
+    scratch: Scratch;
 }
 
 type SortMode = 'language' | 'title' | 'date';
@@ -163,7 +164,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                         <tbody>
                             {
                                 scratches.map((scratch, i) => 
-                                    <tr key={i} className="cursor-pointer overflow-hidden text-nowrap whitespace-nowrap hover:font-bold"
+                                    <tr key={i} className={`cursor-pointer overflow-hidden text-nowrap whitespace-nowrap hover:font-bold ${props.scratch.id && scratch.id === props.scratch.id ? "font-bold" : ""}`}
                                         onClick={() => {
                                             props.setScratch(scratch);
                                         }}>

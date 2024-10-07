@@ -60,7 +60,7 @@ const SignInModal: React.FC<ModalProps> = ({ visible, onClose }) => {
     }
 
     return (
-        <Modal visible={visible} onClose={onClose} className="bg-white max-w-sm h-[40%] p-5">
+        <Modal visible={visible} onClose={onClose} className="bg-white max-w-sm p-5">
             <h1 className="text-center text-3xl font-bold">
                 Sign in
             </h1>

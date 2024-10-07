@@ -71,7 +71,7 @@ function App() {
   return (
     <>
       <div className="flex flex-row">
-        <DirectorySidebar setScratch={(scratch: Scratch) => {
+        <DirectorySidebar scratch={scratch} setScratch={(scratch: Scratch) => {
           setScratch(_ => scratch);
           setCode(_ => scratch.code);
         }} />
