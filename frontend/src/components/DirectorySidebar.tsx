@@ -120,20 +120,23 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
         }}>
             {/* Directory Content */}
             <div className="w-full overflow-hidden">
+                <div className="p-3 flex flex-row justify-center items-center">
+                    {
+                        user.data ?
+                        <p>
+                            {user.data.email}
+                        </p>
+                        :
+                        <button className="text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors" onClick={() => {
+                            modal.signIn.show();
+                        }}>
+                            Sign In
+                        </button>
+                    }
+                </div>
+                
                 {
-                    user.data ?
-                    <p>
-                        {user.data.email}
-                    </p>
-                    :
-                    <button onClick={() => {
-                        modal.signIn.show();
-                    }}>
-                        Sign In
-                    </button>
-                }
-                {
-                    user.data && 
+                    user.data ? 
                     <table>
                         <tr>
                             <th className="cursor-pointer mx-2" onClick={handleSortChange("language")}>
@@ -165,6 +168,10 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                             )
                         }
                     </table>
+                    :
+                    <p className="text-center mx-2 mt-4">
+                        Sign in/sign up to save your scratches!
+                    </p>
                 }
             </div>
 

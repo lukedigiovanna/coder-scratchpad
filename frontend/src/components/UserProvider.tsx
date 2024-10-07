@@ -5,7 +5,7 @@ import { attemptToRestoreSession, signInWithPassword } from "../constants/supaba
 
 interface UserContextProps {
     data: User | null;
-    signIn: (email: string, password: string) => void;
+    signIn: (email: string, password: string) => Promise<void>;
 };
 
 const UserContext = React.createContext<UserContextProps | undefined>(undefined);
@@ -14,13 +14,8 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [user, setUser] = React.useState<User | null>(null);
 
     const signIn = async (email: string, password: string) => {
-        try {
-            const response = await signInWithPassword(email, password);
-            setUser(_ => response);
-        }
-        catch (e) {
-            console.error(e);
-        }
+        const response = await signInWithPassword(email, password);
+        setUser(_ => response);
     }
 
     React.useEffect(() => {

@@ -1,5 +1,6 @@
 import React from "react";
 import { useModal } from "./ModalProvider";
+import { useUser } from "./UserProvider";
 
 interface ModalProps {
     visible: boolean;
@@ -15,7 +16,7 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({ visible, childre
                     onClose();
                 }
              }}>
-            <div className={`block mx-auto mt-32 max-w-xl h-[50%] rounded z-20 ${className ? className : ""}`}
+            <div className={`block mx-auto mt-32 rounded z-20 ${className ? className : ""}`}
                  onClick={(e) => {
                     e.stopPropagation();
                  }}>
@@ -28,17 +29,71 @@ const Modal: React.FC<React.PropsWithChildren<ModalProps>> = ({ visible, childre
 const SignInModal: React.FC<ModalProps> = ({ visible, onClose }) => {
     const modal = useModal();
 
+    const [email, setEmail] = React.useState<string>("");
+    const [password, setPassword] = React.useState<string>("");
+
+    const [error, setError] = React.useState<string>("");
+
+    const [loading, setLoading] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        setEmail("");
+        setPassword("");
+        setError("");
+    }, [visible]);
+
+    React.useEffect(() => {
+        setError("");
+    }, [email, password]);
+
+    const user = useUser();
+
     return (
-        <Modal visible={visible} onClose={onClose} className="bg-white">
+        <Modal visible={visible} onClose={onClose} className="bg-white max-w-sm h-[40%] p-5">
             <h1 className="text-center text-3xl font-bold">
                 Sign in
             </h1>
-            <button onClick={() => {
-                modal.signIn.hide();
-                modal.signUp.show();
-            }}>
-                Sign up
+
+            <form className="flex flex-col space-y-8 mt-12 mx-12">
+                <input className="border-b-[3px] outline-none border-b-neutral-600 px-2 pb-1 focus:border-b-blue-500" 
+                       placeholder="email"
+                       value={email}
+                       onChange={(e) => setEmail(_ => e.target.value)} />
+                <input className="border-b-[3px] outline-none border-b-neutral-600 px-2 pb-1 focus:border-b-blue-500" 
+                       placeholder="password"
+                       value={password}
+                       onChange={(e) => setPassword(_ => e.target.value)} />
+            </form>
+
+            <button className="block mx-auto mt-12 text-sm font-bold text-gray-100 rounded-sm px-4 py-2 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors disabled:bg-blue-600 disabled:opacity-50"
+                    disabled={loading || email.length === 0 || password.length === 0}
+                    onClick={() => {
+                        setLoading(true);
+                        user.signIn(email, password).then(() => {
+                            modal.signIn.hide();
+                        }).catch(e => {
+                            setError(e.message);
+                        }).finally(() => {
+                            setLoading(false);
+                        });
+                    }}>
+                Sign In
             </button>
+
+            <p className="text-center mt-8 min-h-6 font-bold text-red-500">
+                { error }
+            </p>
+
+            <p className="text-center mt-6">
+                No account?
+                {" "}
+                <button className="italic font-bold hover:text-blue-500 active:text-blue-700" onClick={() => {
+                    modal.signIn.hide();
+                    modal.signUp.show();
+                }}>
+                    Sign up
+                </button>
+            </p>
         </Modal>
     )
 }

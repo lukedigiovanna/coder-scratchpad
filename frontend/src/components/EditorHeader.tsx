@@ -25,12 +25,13 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
     return (
         <div className="grid grid-cols-2 grid-rows-1 pl-3 py-3 bg-neutral-800"
              style={{
-                backgroundColor: chroma(theme.data.colors["editor.background"]).brighten(0.4).hex()
+                backgroundColor: chroma(theme.data.colors["editor.background"]).brighten(0.4).hex(),
+                color: theme.data.colors["editor.foreground"]
              }}>
             <div className="flex flex-row justify-between">
                 <div className="flex flex-row items-center justify-center">
                     <LanguageLogo language={props.scratch.language} className="w-6 mr-2" />
-                    <h1 className="font-bold text-gray-100 text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
+                    <h1 className="font-bold text-xl overflow-hidden whitespace-nowrap overflow-ellipsis">
                         { props.scratch.title }
                     </h1>
 
@@ -66,13 +67,13 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
             <div className="flex flex-row items-center justify-end">
                 <div>
                     <select 
-                        className="rounded bg-transparent font-bold text-gray-100 outline-none mr-4"
+                        className="rounded bg-transparent font-bold outline-none mr-4"
                         onChange={(e) => {
                             theme.setTheme(e.currentTarget.value as ThemeName);
                         }}>
                         {
                             themeNames.map((name) => {
-                                return <option value={name} key={name}>
+                                return <option value={name} key={name} className="text-neutral-900 bg-gray-100">
                                     {name}
                                 </option>
                             })
