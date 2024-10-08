@@ -87,8 +87,6 @@ async function attemptToRestoreSession(): Promise<User | null> {
         if (error) {
             throw Error(error.message);
         }
-        
-        console.log(data);
 
         return makeUser(data.user?.email as string);
     }
@@ -100,7 +98,23 @@ async function insertScratch(scratch: Scratch): Promise<Scratch> {
         throw Error("ID of scratch should be null")
     }
 
-    return scratch;
+    const uuid = (await supabase.auth.getUser()).data.user?.id;
+    
+    const now = new Date();
+    const insert = await supabase.from("scratches").upsert({
+        title: scratch.title,
+        code: scratch.code,
+        owner: uuid,
+        language: scratch.language,
+        updated_at: now,
+        created_at: now,
+    }).select();
+
+    if (!insert.data || insert.data.length === 0) {
+        throw Error("Did not update anything");
+    }
+
+    return rawDataToScratch(insert.data[0]);
 }
 
 // Attempts to overwrite the data of this scratch
@@ -126,6 +140,16 @@ async function updateScratch(scratch: Scratch, updateTime=false): Promise<Scratc
     return rawDataToScratch(update.data[0]);
 }
 
+async function deleteScratch(scratch: Scratch): Promise<void> {
+    if (scratch.id === null) {
+        throw Error("Cannot delete scratch with null ID");
+    }
 
+    const response = await supabase.from("scratches").delete().eq("id", scratch.id);
 
-export { supabase, signInWithPassword, attemptToRestoreSession, updateScratch };
+    if (response.error) {
+        throw Error(response.error.message);
+    }
+}
+
+export { supabase, signInWithPassword, attemptToRestoreSession, updateScratch, insertScratch, deleteScratch };

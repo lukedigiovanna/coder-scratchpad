@@ -13,7 +13,7 @@ import { DirectorySidebar } from './components/DirectorySidebar';
 import { useTheme } from './components/ThemeProvider';
 import { useUser } from './components/UserProvider';
 import { debounce } from './constants/utils';
-import { updateScratch } from './constants/supabaseClient';
+import { insertScratch, updateScratch } from './constants/supabaseClient';
 
 function App() {
   const [output, setOutput] = React.useState<string>("");
@@ -34,18 +34,24 @@ function App() {
     }
   }, [user]);
 
-  React.useEffect(() => {
-    console.log("updated code man");
-  }, [code]);
-
   const updateCodeDebounce = React.useMemo(() => debounce((scratch: Scratch, code: string) => {
     scratch.code = code;
-    updateScratch(scratch, true).then(sc => {
-      setScratch(sc);
-      user.updateScratch(sc);
-    }).catch(e => {
-      console.error(e);
-    });
+    if (scratch.id !== null) {
+      updateScratch(scratch, true).then(sc => {
+        setScratch(sc);
+        user.updateScratch(sc);
+      }).catch(e => {
+        console.error(e);
+      });
+    }
+    else {
+      insertScratch(scratch).then(sc => {
+        setScratch(sc);
+        user.updateScratch(sc);
+      }).catch(e => {
+        console.error(e);
+      });
+    }
   }, 3000), [user]);
 
   const executeCode = async () => {

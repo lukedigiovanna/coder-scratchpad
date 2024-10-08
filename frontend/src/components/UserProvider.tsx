@@ -8,6 +8,7 @@ interface UserContextProps {
     signIn: (email: string, password: string) => Promise<void>;
     signOut: () => void;
     updateScratch: (scratch: Scratch) => void;
+    deleteScratch: (scratch: Scratch) => void;
 };
 
 const UserContext = React.createContext<UserContextProps | undefined>(undefined);
@@ -27,11 +28,24 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
     const updateScratch = (scratch: Scratch) => {
         if (user) {
+            let updated = false;
             for (let i = 0; i < user.scratches.length; i++) {
                 if (user.scratches[i].id === scratch.id) {
                     user.scratches[i] = {...scratch};
+                    updated = true;
+                    break;
                 }
             }
+            if (!updated) {
+                user.scratches.push(scratch);
+            }
+            setUser({...user});
+        }
+    }
+
+    const deleteScratch = (scratch: Scratch) => {
+        if (user) {
+            user.scratches.splice(user.scratches.findIndex(s => s.id === scratch.id), 1);
             setUser({...user});
         }
     }
@@ -51,7 +65,7 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{data: user, signIn, signOut, updateScratch}}>
+        <UserContext.Provider value={{data: user, signIn, signOut, updateScratch, deleteScratch}}>
             { children }
         </UserContext.Provider>
     )

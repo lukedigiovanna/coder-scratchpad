@@ -109,7 +109,7 @@ const SignInModal: React.FC<ModalProps> = ({ visible, onClose }) => {
 
 const SignUpModal: React.FC<ModalProps> = ({ visible, onClose }) => {
     return (
-        <Modal visible={visible} onClose={onClose} className="bg-white">
+        <Modal visible={visible} onClose={onClose} className="bg-white max-w-sm p-5">
             <h1 className="text-center text-3xl font-bold">
                 Sign up
             </h1>
@@ -117,5 +117,32 @@ const SignUpModal: React.FC<ModalProps> = ({ visible, onClose }) => {
     )
 }
 
+const DeleteConfirmationModal: React.FC<ModalProps & { onConfirm: () => void}> = ({ visible, onClose, onConfirm }) => {
+    return (
+        <Modal visible={visible} onClose={onClose} className="bg-white max-w-sm p-5">
+            <h1 className="text-center font-bold text-xl">
+                Confirm?
+            </h1>
+            <p className="text-center italic text-neutral-700 mb-4">
+                This operation cannot be undone
+            </p>
+            <div className="flex flex-row justify-center space-x-8">
+                <button className="text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors"
+                        onClick={() => {
+                            onConfirm();
+                            if (onClose) onClose();
+                        }}>
+                    Confirm
+                </button>
+                <button className="text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-gray-600 hover:bg-gray-800 active:bg-gray-500 transition-colors"
+                        onClick={() => {
+                            if (onClose) onClose();
+                        }}>
+                    Cancel
+                </button>
+            </div>
+        </Modal>
+    )
+}
 
-export { Modal, SignInModal, SignUpModal };
+export { Modal, SignInModal, SignUpModal, DeleteConfirmationModal };

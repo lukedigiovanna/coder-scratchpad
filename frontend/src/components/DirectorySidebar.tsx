@@ -2,10 +2,11 @@ import React from "react"
 import { useTheme } from "./ThemeProvider";
 import { useUser } from "./UserProvider";
 import chroma from "chroma-js";
-import { Scratch } from "../constants/models";
+import { newScratch, Scratch } from "../constants/models";
 import { formatDateForDirectory } from "../constants/utils";
 import { LanguageLogo } from "./LanguageLogo";
 import { useModal } from "./ModalProvider";
+import { deleteScratch } from "../constants/supabaseClient";
 
 interface ScratchDirectoryProps {
     setScratch: (scratch: Scratch) => void;
@@ -27,6 +28,8 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
 
     const [sortMode, setSortMode] = React.useState<SortMode>('date');
     const [sortDirection, setSortDirection] = React.useState<SortDirection>('descending');
+
+    const [hover, setHover] = React.useState<number | null>(null);
 
     const modal = useModal();
 
@@ -61,7 +64,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
     }, []);
 
     const handleMouseMove = React.useMemo(() => (ev: MouseEvent) => {
-        if (ev.clientX < 15) {
+        if (ev.clientX < 30) {
             setWidth(0);
         }
         else {
@@ -115,8 +118,8 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
             width: width + "px",
             minWidth: width + "px",
         }}>
-            {/* Directory Content */}
-            <div className="w-full overflow-hidden">
+            { /* User section */}
+            <div className="w-full overflow-x-hidden">
                 <div className="p-3">
                     {
                         user.data ?
@@ -147,43 +150,70 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
 
                 <hr className="mx-3 mb-3"/>
                 
+                {/* Directory Content */}
                 {
                     user.data ? 
-                    <table>
-                        <thead>
-                            <tr className="select-none">
-                                <th className="cursor-pointer mx-2 min-w-16" onClick={handleSortChange("language")}>
-                                    Lang. {getSortIndicator("language")}
-                                </th>
-                                <th className="cursor-pointer mx-2 max-w-48" onClick={handleSortChange("title")}>
-                                    Title {getSortIndicator("title")}
-                                </th>
-                                <th className="cursor-pointer mx-2 min-w-44" onClick={handleSortChange("date")}>
-                                    Date {getSortIndicator("date")}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                scratches.map((scratch, i) => 
-                                    <tr key={i} className={`cursor-pointer overflow-hidden text-nowrap whitespace-nowrap hover:font-bold ${props.scratch.id && scratch.id === props.scratch.id ? "font-bold" : ""}`}
-                                        onClick={() => {
-                                            props.setScratch(scratch);
-                                        }}>
-                                        <td className="min-w-16">
-                                            <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
-                                        </td>
-                                        <td className="max-w-48 overflow-ellipsis overflow-hidden">
-                                            {scratch.title}
-                                        </td>
-                                        <td className="min-w-44">
-                                            {formatDateForDirectory(scratch.updatedAt)}
-                                        </td>
-                                    </tr>
-                                )
-                            }
-                        </tbody>
-                    </table>
+                    <>
+                        <button className="mb-2 block mx-auto text-sm font-bold text-gray-100 rounded-sm px-4 py-2 m-0 bg-blue-600 hover:bg-blue-800 active:bg-blue-500 transition-colors" onClick={() => {
+                            const n = newScratch("python");
+                            props.setScratch(n);
+                        }}>
+                            + New
+                        </button>
+                        <table className="mb-16">
+                            <thead>
+                                <tr className="select-none">
+                                    <th className="cursor-pointer mx-2 min-w-16" onClick={handleSortChange("language")}>
+                                        Lang. {getSortIndicator("language")}
+                                    </th>
+                                    <th className="cursor-pointer mx-2 max-w-48" onClick={handleSortChange("title")}>
+                                        Title {getSortIndicator("title")}
+                                    </th>
+                                    <th className="cursor-pointer mx-2 min-w-44" onClick={handleSortChange("date")}>
+                                        Date {getSortIndicator("date")}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="overflow-y-scroll">
+                                {
+                                    scratches.map((scratch, i) => 
+                                        <tr key={i} className={`cursor-pointer overflow-hidden text-nowrap whitespace-nowrap hover:font-bold ${props.scratch.id && scratch.id === props.scratch.id ? "font-bold" : ""}`}
+                                            onClick={() => {
+                                                props.setScratch(scratch);
+                                            }}
+                                            onMouseOver={() => {
+                                                setHover(_ => scratch.id);
+                                            }}
+                                            onMouseOut={() => {
+                                                setHover(_ => null);
+                                            }}>
+                                            <td className="min-w-16 relative">
+                                                <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
+                                                <img src={"assets/trash.png"} alt={"D"} 
+                                                     className="absolute w-5 translate-x-[105%] translate-y-[-100%] hover:rotate-12" 
+                                                     style={{
+                                                        visibility: hover === scratch.id ? "visible" : "hidden"
+                                                     }}
+                                                     onClick={() => {
+                                                         modal.deleteConfirmation.setCallback(() => {
+                                                            deleteScratch(scratch);
+                                                            user.deleteScratch(scratch);
+                                                        });
+                                                        modal.deleteConfirmation.show();
+                                                     }}/>
+                                            </td>
+                                            <td className="max-w-48 overflow-ellipsis overflow-hidden">
+                                                {scratch.title}
+                                            </td>
+                                            <td className="min-w-44">
+                                                {formatDateForDirectory(scratch.updatedAt)}
+                                            </td>
+                                        </tr>
+                                    )
+                                }
+                            </tbody>
+                        </table>
+                    </>
                     :
                     <p className="text-center mx-2 mt-4">
                         Sign in/sign up to save your scratches!

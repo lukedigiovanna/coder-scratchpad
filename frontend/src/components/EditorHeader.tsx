@@ -40,7 +40,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
             <div className="flex flex-row justify-between">
                 <div className="flex flex-row items-center w-full">
                     <LanguageLogo language={props.scratch.language} className="w-6 mr-2" />
-                    <input className={`${props.isSaved ? "" : "text-red-300"} font-mono font-bold text-xl overflow-hidden whitespace-nowrap overflow-ellipsis bg-transparent w-full outline-none`} 
+                    <input className={`font-mono font-bold text-xl overflow-hidden whitespace-nowrap overflow-ellipsis bg-transparent w-full outline-none`} 
                            value={scratchTitle}
                            style={{
                             width: (scratchTitle.length) + "ch"
@@ -66,7 +66,7 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
                         
                         {
                             !props.isSaved &&
-                            <p className="ml-1 text-red-300">
+                            <p className="ml-1">
                                 *
                             </p>
                         }
