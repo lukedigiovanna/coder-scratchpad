@@ -26,13 +26,25 @@ function App() {
   const theme = useTheme();
   const user = useUser();
 
-  React.useEffect(() => {
-    if (user === null) {
+  const resetScratch = React.useMemo(() => {
+    return () => {
       const n = newScratch("python");
       setScratch(n);
       setCode(n.code);
     }
-  }, [user]);
+  }, []);
+
+  React.useEffect(() => {
+    if (user.data === null) {
+      resetScratch();
+    }
+    else {
+      // check if the current scratch is still in the list of scratches
+      if (!user.data.scratches.find(s => s.id === scratch.id)) {
+        resetScratch();
+      }
+    }
+  }, [user.data, scratch.id, resetScratch]);
 
   const updateCodeDebounce = React.useMemo(() => debounce((scratch: Scratch, code: string) => {
     scratch.code = code;
