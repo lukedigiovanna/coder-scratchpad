@@ -68,7 +68,7 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
             setWidth(0);
         }
         else {
-            setWidth(Math.min(ev.clientX, 420));
+            setWidth(Math.min(ev.clientX, 395));
         }
     }, []);
 
@@ -160,11 +160,11 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                         }}>
                             + New
                         </button>
-                        <table className="mb-16">
+                        <table className="mb-16 ml-2">
                             <thead>
                                 <tr className="select-none">
-                                    <th className="cursor-pointer mx-2 min-w-16" onClick={handleSortChange("language")}>
-                                        Lang. {getSortIndicator("language")}
+                                    <th className="cursor-pointer mx-2 min-w-8" onClick={handleSortChange("language")}>
+                                        {getSortIndicator("language")}
                                     </th>
                                     <th className="cursor-pointer mx-2 max-w-48" onClick={handleSortChange("title")}>
                                         Title {getSortIndicator("title")}
@@ -187,10 +187,10 @@ const DirectorySidebar: React.FC<ScratchDirectoryProps> = (props: ScratchDirecto
                                             onMouseOut={() => {
                                                 setHover(_ => null);
                                             }}>
-                                            <td className="min-w-16 relative">
+                                            <td className="min-w-8 relative">
                                                 <LanguageLogo language={scratch.language} className='block mx-auto w-4' />
                                                 <img src={"assets/trash.png"} alt={"D"} 
-                                                     className="absolute w-5 translate-x-[105%] translate-y-[-100%] hover:rotate-12" 
+                                                     className="absolute w-5 translate-x-[27%] translate-y-[-100%] hover:rotate-12" 
                                                      style={{
                                                         visibility: hover === scratch.id ? "visible" : "hidden"
                                                      }}
