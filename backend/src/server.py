@@ -1,101 +1,43 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit, disconnect
+import aiohttp_cors
+from aiohttp import web
+import socketio
 
-import subprocess
-import random
-import os
-import select
-import io
-import traceback
+sio = socketio.AsyncServer()
+app = web.Application()
+sio.attach(app)
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+async def index(request):
+    """Serve the client-side application."""
+    with open('static/index.html') as f:
+        return web.Response(text=f.read(), content_type='text/html')
 
-def make_temp_file_path(extension=''):
-    rand_str = ''
-    for _ in range(6):
-        rand_str += chr(random.randint(97, 122))
-    return f'/tmp/csp_{rand_str}'
+@sio.event
+def connect(sid, environ):
+    print("connect ", sid)
 
-@socketio.on('connect')
-def handle_connect():
-    # Nothing to do for now
-    pass
+@sio.event
+async def chat_message(sid, data):
+    print("message ", data)
 
-def get_extension(language):
-    if language == "python":
-        return "py"
-    elif language == "c++":
-        return "cpp"
-    elif language == "c":
-        return "c"
-    return None
+@sio.event
+def disconnect(sid):
+    print('disconnect ', sid)
 
-@socketio.on('execute')
-def handle_message(data):
-    code = data["code"]
-    language = data["language"]
+app.router.add_static('/static', 'static')
+app.router.add_get('/', index)
 
-    extension = get_extension(language)
-    temp_file = make_temp_file_path(extension)
-    temp_code_file = f"{temp_file}.{extension}"
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+        allow_credentials=True,
+        expose_headers="*",
+        allow_headers="*",
+    )
+})
 
-    # Write code to temporary file
-    with open(temp_code_file, "w") as f:
-        f.write(code)
-
-    exit_status = 0
-    try:
-        if language == "python":
-            p = subprocess.Popen(['python3', '-u', temp_code_file],
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 bufsize=1,
-                                 text=True)
-        # elif language == "c++":
-        #     c = subprocess.Popen(['g++', '-o', temp_file, temp_code_file])
-        #     c.wait()
-        #     # assume no compile errors :)
-
-
-        # set streams to non blocking so 
-        os.set_blocking(p.stdout.fileno(), False)
-        os.set_blocking(p.stderr.fileno(), False)
-
-        while p.poll() is None:
-            ready, _, _ = select.select([p.stdout, p.stderr], [], [], 0.1)
-            if p.stdout in ready:
-                output = p.stdout.read()
-                if output:
-                    emit("output", output)
-            if p.stderr in ready:
-                error = p.stderr.read()
-                if error:
-                    modified_traceback = error.replace(temp_code_file, "<main.py>")
-                    emit("output", modified_traceback)
-        p.stdout.close()
-        p.stderr.close()
-        
-        exit_status = p.wait()       
-    except Exception as e:
-        # Create a string buffer to capture the traceback
-        buffer = io.StringIO()
-        traceback.print_exc(file=buffer)  # Capture the traceback in the buffer
-        error_message = buffer.getvalue()  # Get the string from the buffer
-
-        # Now you have the entire traceback as a string
-        emit("error", error_message)  # Emit the error string as needed
-    finally:
-        if os.path.exists(temp_code_file):
-            os.remove(temp_code_file)
-    
-    emit("exit", exit_status)
-    disconnect()
-    
-    
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Client disconnected')
+# Add CORS to routes
+for route in list(app.router.routes()):
+    cors.add(route)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    web.run_app(app, host='0.0.0.0', port=8080)
+
