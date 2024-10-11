@@ -99,7 +99,8 @@ const EditorHeader: React.FC<EditorHeaderProps>  = (props: EditorHeaderProps) =>
                         className="rounded bg-transparent font-bold outline-none mr-4"
                         onChange={(e) => {
                             theme.setTheme(e.currentTarget.value as ThemeName);
-                        }}>
+                        }}
+                        value={theme.name}>
                         {
                             themeNames.map((name) => {
                                 return <option value={name} key={name} className="text-neutral-900 bg-gray-100">

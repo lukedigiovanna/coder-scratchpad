@@ -12,8 +12,20 @@ interface ThemeContextProps {
 const ThemeContext = React.createContext<ThemeContextProps | undefined>(undefined);
 
 const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-    const [themeName, setTheme] = React.useState<ThemeName>("GithubDark"); 
+    const [themeName, setThemeState] = React.useState<ThemeName>("GithubDark"); 
     const theme = React.useMemo<editor.IStandaloneThemeData>(() => getTheme(themeName), [themeName]);
+
+    const setTheme = (theme: ThemeName) => {
+        setThemeState(theme);
+        localStorage.setItem("csp_theme", theme);
+    }
+
+    React.useEffect(() => {
+        const ls = localStorage.getItem("csp_theme");
+        if (ls !== null) {
+            setTheme(ls as ThemeName);
+        }
+    }, []);
 
     return (
         <ThemeContext.Provider value={{name: themeName, data: theme, setTheme}}>
