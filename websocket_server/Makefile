@@ -1,10 +1,10 @@
-CFLAGS=-g -O2 -pthread -Wall -Werror -Wmissing-prototypes
+CFLAGS=-g -O2 -pthread -Wall -Wmissing-prototypes
 
 # include lib directory into runtime path to facilitate dynamic linking
 LDFLAGS=-pthread
 
-HEADERS=socket.h
-OBJ=main.o socket.o
+HEADERS=socket.h bufio.h http.h
+OBJ=main.o socket.o bufio.o http.o
 
 all:    server $(OTHERS)
 

@@ -1,9 +1,11 @@
 #include <stdio.h>
 
 #include "socket.h"
+#include "bufio.h"
 
 #include <sys/socket.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define PORT 8080
 #define MAX_MESSAGE_SIZE 256
@@ -17,6 +19,13 @@ static void handle_client(int client_fd) {
 }
 
 int main(int argc, char* argv[]) {
+    int fd = open("main.c", O_CREAT, O_RDONLY);
+    struct bufio* buff = bufio_create(fd);
+
+    bufio_destroy(buff);
+
+    return 0;
+
     // Set up a socket server
     int server_socket_fd = server_bind_and_listen(PORT);
 
