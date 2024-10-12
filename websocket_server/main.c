@@ -11,21 +11,24 @@
 #define MAX_MESSAGE_SIZE 256
 
 static void handle_client(int client_fd) {
-    char buffer[MAX_MESSAGE_SIZE];
-    read(client_fd, buffer, MAX_MESSAGE_SIZE);
-    // Need to parse the buffer
+    struct bufio* buffer = bufio_create(client_fd);
+    size_t offset, len;
+    char* ptr;
+    
+    offset = bufio_readline(buffer, &len);
+    ptr = bufio_offset2ptr(buffer, offset);
+    ptr[len - 1] = '\0';
+    printf("%s\n", ptr);
+    
+    offset = bufio_readline(buffer, &len);
+    ptr = bufio_offset2ptr(buffer, offset);
+    ptr[len - 1] = '\0';
+    printf("%s\n", ptr);
 
-    printf("From client: %s\n", buffer);
+    bufio_destroy(buffer);
 }
 
 int main(int argc, char* argv[]) {
-    int fd = open("main.c", O_CREAT, O_RDONLY);
-    struct bufio* buff = bufio_create(fd);
-
-    bufio_destroy(buff);
-
-    return 0;
-
     // Set up a socket server
     int server_socket_fd = server_bind_and_listen(PORT);
 
