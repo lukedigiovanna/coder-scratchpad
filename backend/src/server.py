@@ -1,43 +1,33 @@
-import aiohttp_cors
 from aiohttp import web
-import socketio
+from pathlib import Path
+import asyncio
 
-sio = socketio.AsyncServer()
+# WebSocket handler
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    print("WebSocket connection established")
+
+    async for msg in ws:
+        if msg.type == web.WSMsgType.TEXT:
+            await ws.send_str(f"Echo: {msg.data}")
+        elif msg.type == web.WSMsgType.ERROR:
+            print(f"WebSocket connection closed with exception {ws.exception()}")
+
+    print("WebSocket connection closed")
+    return ws
+
 app = web.Application()
-sio.attach(app)
 
-async def index(request):
-    """Serve the client-side application."""
-    with open('static/index.html') as f:
-        return web.Response(text=f.read(), content_type='text/html')
+# setup websocket handler
+app.router.add_route("GET", "/ws", websocket_handler)
 
-@sio.event
-def connect(sid, environ):
-    print("connect ", sid)
+# Serve the webpage at the root
+async def index(_):
+    return web.FileResponse(Path("static") / "index.html")
+app.router.add_get("/", index)
+app.router.add_static("/", path="static", show_index=True)
 
-@sio.event
-async def chat_message(sid, data):
-    print("message ", data)
-
-@sio.event
-def disconnect(sid):
-    print('disconnect ', sid)
-
-app.router.add_static('/static', 'static')
-app.router.add_get('/', index)
-
-cors = aiohttp_cors.setup(app, defaults={
-    "*": aiohttp_cors.ResourceOptions(
-        allow_credentials=True,
-        expose_headers="*",
-        allow_headers="*",
-    )
-})
-
-# Add CORS to routes
-for route in list(app.router.routes()):
-    cors.add(route)
-
-if __name__ == '__main__':
-    web.run_app(app, host='0.0.0.0', port=8080)
-
+if __name__ == "__main__":
+    web.run_app(app, host="localhost", port=8080)
