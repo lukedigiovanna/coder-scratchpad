@@ -93,6 +93,16 @@ async function attemptToRestoreSession(): Promise<User | null> {
     return null;
 }
 
+async function attemptSignUp(email: string, password: string): Promise<User | null> {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+        throw Error(error.message);
+    }
+
+    return makeUser(email);
+}
+
 async function insertScratch(scratch: Scratch): Promise<Scratch> {
     if (scratch.id !== null) {
         throw Error("ID of scratch should be null")
@@ -152,4 +162,4 @@ async function deleteScratch(scratch: Scratch): Promise<void> {
     }
 }
 
-export { supabase, signInWithPassword, attemptToRestoreSession, updateScratch, insertScratch, deleteScratch };
+export { supabase, signInWithPassword, attemptToRestoreSession, attemptSignUp, updateScratch, insertScratch, deleteScratch };

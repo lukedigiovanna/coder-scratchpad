@@ -1,12 +1,13 @@
 import React from "react";
 
 import { Scratch, User } from "../constants/models";
-import { attemptToRestoreSession, signInWithPassword, supabase } from "../constants/supabaseClient";
+import { attemptSignUp, attemptToRestoreSession, signInWithPassword, supabase } from "../constants/supabaseClient";
 
 interface UserContextProps {
     data: User | null;
     signIn: (email: string, password: string) => Promise<void>;
     signOut: () => void;
+    signUp: (email: string, password: string) => Promise<void>;
     updateScratch: (scratch: Scratch) => void;
     deleteScratch: (scratch: Scratch) => void;
 };
@@ -24,6 +25,11 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const signOut = () => {
         supabase.auth.signOut();
         setUser(null);
+    }
+
+    const signUp = async (email: string, password: string) => {
+        const response = await attemptSignUp(email, password);
+        setUser(_ => response);
     }
 
     const updateScratch = (scratch: Scratch) => {
@@ -65,7 +71,7 @@ const UserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{data: user, signIn, signOut, updateScratch, deleteScratch}}>
+        <UserContext.Provider value={{data: user, signIn, signOut, signUp, updateScratch, deleteScratch}}>
             { children }
         </UserContext.Provider>
     )
