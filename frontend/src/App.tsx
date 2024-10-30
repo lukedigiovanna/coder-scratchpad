@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Editor, Monaco } from '@monaco-editor/react';
 
-import { Client } from './client';
+import { CodeRunnerClient } from './constants/CodeRunnerClient';
 import { defineThemes } from './themes';
 
 import { newScratch, Scratch } from './constants/models';
@@ -68,7 +68,7 @@ function App() {
 
   const executeCode = async () => {
     setOutput((_) => '');
-    const client = new Client({
+    const client = new CodeRunnerClient({
       onPacket: (message: string) => {
         setOutput(output => output + message);
       }, 
