@@ -4,12 +4,9 @@ import asyncio
 import json
 import uuid
 import os
-
-import subprocess
-import os
-import select
 import io
 import traceback
+import resource
 
 # Written for Linux
 
@@ -31,6 +28,7 @@ def write_code_to_temp_file(code, language):
     tmp_file = f'./{uuid.uuid4()}.{ext}'
     with open(tmp_file, "w") as f:
         f.write(code)
+    # os.chmod(tmp_file, )
     return tmp_file
 
 async def send_event(ws, event, args):
@@ -40,10 +38,19 @@ async def send_event(ws, event, args):
     })
     await ws.send_str(message)
 
+def limit_resources():
+    # resource.setrlimit(resource.RLIMIT_CPU, (1, 1))  # 1 second max CPU time
+    resource.setrlimit(resource.RLIMIT_AS, (10**8, 10**8))  # 100 MB max address space
+    resource.setrlimit(resource.RLIMIT_NPROC, (0, 0))  # No new subprocesses
+    # os.chdir('/')  # Change to a directory with restricted permissions
+
+
 async def start_program_python(code_file):
     return await asyncio.create_subprocess_exec(PYTHON_INTERPRETER, '-u', code_file,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
+                            stdout=asyncio.subprocess.PIPE,
+                            stderr=asyncio.subprocess.PIPE,
+                            preexec_fn=limit_resources,
+                            env={}
                             # bufsize=1,
                             # text=True
                             )
@@ -64,14 +71,14 @@ async def execute_code(ws, code, language):
 
         while True:
             # Wait for output or error asynchronously
-            stdout_line = await process.stdout.readline()
-            stderr_line = await process.stderr.readline()
+            stdout_line = await process.stdout.read(1)
+            # stderr_line = await process.stderr.readline()
 
             if stdout_line:
                 await send_event(ws, "output", stdout_line.decode())
-            if stderr_line:
-                modified_traceback = stderr_line.decode().replace(tmp_file, "<main.py>")
-                await send_event(ws, "output", modified_traceback)
+            # if stderr_line:
+            #     modified_traceback = stderr_line.decode().replace(tmp_file, "<main.py>")
+            #     await send_event(ws, "output", modified_traceback)
 
             if process.stdout.at_eof() and process.stderr.at_eof():
                 break
